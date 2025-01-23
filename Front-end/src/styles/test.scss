@@ -1,0 +1,26 @@
+.test-container{
+    width : 400px;
+    height : 400px ;
+    overflow: hidden;
+    box-shadow: 0px 0px 15px -5px;
+    margin-left: 400px;
+    margin-top: 100px;
+    border-radius: 10px;
+    background-color: white;
+
+   
+}
+.question-container{
+    width : 700px;
+    height : 400px ;
+    overflow: hidden;
+    box-shadow: 0px 0px 15px -5px;
+    margin-left: 400px;
+    margin-top: 100px;
+    border-radius: 10px;
+    
+
+}
+.test-container .header {
+    background-color: #a4cdf7;
+}

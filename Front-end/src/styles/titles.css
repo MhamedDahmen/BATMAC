@@ -1,0 +1,11 @@
+h2 {
+   top: 40px;
+}
+hr{
+    top: 15px;
+    border-width:  0;
+    height: 30px;
+    width:40%;
+    background-color: #000203;
+
+}

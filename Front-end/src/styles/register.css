@@ -1,0 +1,25 @@
+.register-container {
+    width : 500px;
+    height : 500px ;
+    overflow: hidden;
+    box-shadow: 0px 0px 15px -5px;
+    margin-left: 400px;
+    margin-top: 50px;
+    border-radius: 10px;
+  
+    
+}
+
+.mb-3{
+    margin-top: 5px;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+.title1-container {
+    padding-top: 20px;
+    
+}
+.btnR{
+    margin-top: 0;
+    margin-bottom: 30px;
+}

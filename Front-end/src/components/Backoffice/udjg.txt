@@ -1,0 +1,304 @@
+import React, { useState } from "react";
+import '../../Styles/components/Admin.usertable.css';
+import '../../Styles/components/Admin.UserForm.scss';
+import { DeleteOutlined } from '@ant-design/icons';
+import { useDispatch } from "react-redux";
+import { Modal ,notification} from 'antd';
+import { EditOutlined,  SmileOutlined } from '@ant-design/icons';
+import { deleteDomaine, editDomaine } from "../../actions/Domaine.action";
+
+
+function DomaineList({ domaine }) {
+
+
+
+    const dispatch = useDispatch();
+    const [DomaineTitle, setDomaineTitle] = useState(domaine.title); 
+    const [DomaineId, setDomaineId] = useState();
+    const [isModalUpdateVisible, setisModalUpdateVisible] = useState(false);
+    
+//DeleteDomaine
+const [visible, setVisible] = React.useState(false);
+const [confirmLoading, setConfirmLoading] = React.useState(false);
+const [modalText, setModalText] = React.useState('Do you really want to delete this domaine ? ');
+
+const showModalDelete = (id) => {
+    setVisible(true);
+    setDomaineId(id) ; 
+
+};
+
+
+
+const handleOkDelete = () => {
+
+    setModalText('Deletion in progress');
+    setConfirmLoading(true);
+
+    setTimeout(() => {
+        setVisible(false);
+        setConfirmLoading(false);
+    }, 3000);
+
+
+    dispatch(deleteDomaine(DomaineId)); 
+};
+
+const handleCancelDelete = () => {
+    console.log('Clicked cancel button');
+    setVisible(false);
+};
+
+//UpdateDomaine    
+const openNotification = () => {
+    notification.open({
+        message: 'Updated succefelly',
+
+        icon: <SmileOutlined style={{ color: '#108ee9' }} />,
+    }, 1000);
+};
+   
+const showModalUpdate = (id) => {
+    setisModalUpdateVisible(true);
+    setDomaineId(id) ; 
+    
+};
+
+    const handleOkUpdate = (id) => {
+
+        const data = {
+            id:id,
+            title: DomaineTitle
+        };
+
+        dispatch(editDomaine(data));
+        setisModalUpdateVisible(false);
+        openNotification();
+
+    };
+
+    const handleCancelUpdate = () => {
+        setisModalUpdateVisible(false);
+    };
+
+    
+
+    return (
+        <>
+
+            <td >
+
+                {domaine.id}
+
+            </td>
+
+            <td >
+
+                {domaine.title}
+
+            </td>
+
+            <td >
+                <div className="edit-delete">
+
+                    <EditOutlined onClick={showModalUpdate}  />
+
+                    <DeleteOutlined onClick={()=>showModalDelete(domaine.id)} />
+                </div>
+
+
+            </td>
+     
+            <Modal
+                title="Title"
+                visible={visible}
+                onOk={handleOkDelete}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancelDelete}
+            >
+                <p>{modalText}</p>
+            </Modal>
+
+            <Modal title="Update the Domaine" visible={isModalUpdateVisible} onOk={()=>handleOkUpdate(domaine.id)}
+                onCancel={handleCancelUpdate} className="modalStyle"> 
+
+                <center>
+                <input type="text" defaultValue={DomaineTitle} onChange={e => setDomaineTitle(e.target.value)}
+                 placeholder="Domaine Title" required="required" className="input"  />
+                </center>
+            </Modal>
+
+        </>
+
+
+
+    );
+}
+export default DomaineList;
+
+
+
+
+*******************************************************************************
+
+import React, { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { isEmpty } from '../../Utils';
+import { Button, Modal, Pagination } from 'antd';
+import { CloseCircleOutlined } from '@ant-design/icons';
+import Nav from "../../Components/AdminGenerale/Nav";
+import { LogoutOutlined } from '@ant-design/icons';
+import { addDomaines, getDomaines } from "../../actions/Domaine.action";
+
+import "../../Styles/components/addDomaine.css";
+import DomaineList from "../../Components/Editor/DomaineList";
+import AdminHeaader from "../../Components/AdminGenerale/Header";
+import Spinner from "../../Components/Spinn";
+
+function EditorDomaines() {
+
+    const dispatch = useDispatch();
+    const [Loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [domainesPerPage, setDomainesPerPage] = useState(10);
+    useEffect(() => {
+        dispatch(getDomaines());
+    }, [])
+
+    const Domaines = useSelector((state) => state.DomaineReducer);
+    const [search, setSearch] = useState('');
+    const [DomaineTitle, setDomaineTitle] = useState('');
+
+    const AnnulerRecherche = () => {
+        setSearch('');
+    }
+
+    //Add Domaine
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const showModal = () => {
+        setIsModalVisible(true);
+
+    };
+
+    const handleOk = () => {
+        setLoading(true);
+        const data = {
+            title: DomaineTitle
+        };
+
+        dispatch(addDomaines(data)).then(() => {
+            setLoading(false);
+        });
+        setIsModalVisible(false);
+
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+
+    // Get Current Page
+
+    const indexOfLastDomaine = currentPage * domainesPerPage;
+    const indexOfFirstDomaine = indexOfLastDomaine - domainesPerPage;
+    const currentDomaines = !isEmpty(Domaines) && Domaines.slice(indexOfFirstDomaine, indexOfLastDomaine);
+
+    return (
+
+        <>
+            <div class="wrapper">
+                <Nav />
+
+                <div class="main_content">
+                    <AdminHeaader />
+
+
+                    <div className="container">
+
+                        <div class="infoo">
+                            <div className="titleHolder">
+
+                                <h2>  <i class="bi bi-list-ul">&#160;Field</i>  </h2>
+
+                            </div>
+                            {Loading &&
+
+                                <Spinner />
+
+                            }
+
+                            <div className="search" >
+
+                                <input type="search" placeholder="Search with Title"
+                                    value={search} onChange={(e) => setSearch(e.target.value)} className="searchbackoffice" />
+
+                                {search && <Button type="primary" shape="circle" icon={<CloseCircleOutlined />}
+                                    onClick={AnnulerRecherche} className="cancel" />}
+
+                            </div>
+
+                            <center>
+
+                                <table class="zui-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Domaine Identify</th>
+                                            <th>Title</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        {!isEmpty(Domaines) && Domaines
+                                            .filter((domaine) => domaine.title.includes(search))
+                                            .map((domaine) =>
+                                                <tr>
+
+
+                                                    <DomaineList domaine={domaine} key={domaine.id} />
+
+                                                </tr>
+                                            )}
+                                    </tbody>
+                                </table>
+                                <div className="pagination">
+                                    <Pagination defaultCurrent={1} total={50} />
+                                </div>
+                                <br />
+                                <div className="btn-add">
+
+                                    <Button type="primary" onClick={showModal} style={{ width: "185px" }}>Add new Domaine </Button>
+
+                                </div>
+
+                            </center>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <Modal title="Add new domaine" visible={isModalVisible} onOk={handleOk}
+                onCancel={handleCancel} className="modalStyle">
+
+                <center>
+                    <input type="text" placeholder="Domaine Title" required="required" className="input"
+                        onChange={(e) => setDomaineTitle(e.target.value)} />
+                </center>
+            </Modal>
+
+
+
+
+
+        </>
+
+
+
+    );
+}
+export default EditorDomaines;
